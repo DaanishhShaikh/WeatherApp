@@ -128,6 +128,3 @@ app.post("/index.html", function (req, res) {
         })
     })
 })
-app.listen(3000, function () {
-    console.log("Server is running on Port 3000!");
-});
