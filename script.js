@@ -1,55 +1,108 @@
-// Select the necessary elements
-const form = document.querySelector("form");
-const input = document.querySelector("#cityName");
-const weatherDiv = document.querySelector("#weather");
+const container = document.querySelector('.container');
+const search = document.querySelector('.search-box button');
+const weatherBox = document.querySelector('.weather-box');
+const weatherDetails = document.querySelector('.weather-details');
+const error404 = document.querySelector('.not-found');
 
-// Event listener for the form submission
-form.addEventListener("submit", (event) => {
-  event.preventDefault(); // Prevent the form from refreshing the page
+function loadAnimation() {
+    var animationContainer = document.getElementById("animation");
+    var animationData = {
+        container: animationContainer,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "images/404.json"
+    };
 
-  const query = input.value; // Get the value of the input field
-  const apiKey = "8120e07ede826efd7a89377bb532cd71";
-  const unit = "metric";
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${query}&appid=${apiKey}&units=${unit}`;
+    var anim = bodymovin.loadAnimation(animationData);
+}
 
-  // Fetch the weather data from the API
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      // Extract the necessary data from the API response
-      const temp = data.main.temp;
-      const weatherDescription = data.weather[0].description;
-      const icon = data.weather[0].icon;
-      const imageURL = `https://openweathermap.org/img/wn/${icon}@2x.png`;
-      const cityName = data.name;
-      const feelsLike = data.main.feels_like;
-      const humidity = data.main.humidity;
-      const pressure = data.main.pressure;
-      const windSpeed = data.wind.speed;
-      const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
 
-      // Update the UI with the weather data
-      weatherDiv.innerHTML = `
-        <img src="${imageURL}" alt="weather icon" class="icon">
-        <p class="city-name">${cityName} (${weatherDescription})</p>
-        <p class="temperature">${temp}<span class="degree">°C</span></p>
-        <p class="detail">Feels like: ${feelsLike}°C</p>
-        <p class="detail">Humidity: ${humidity}%</p>
-        <p class="detail">Pressure: ${pressure}hPa</p>
-        <p class="detail">Wind Speed: ${windSpeed}km/h</p>
-        <p class="detail">Sunrise: ${sunrise}</p>
-        <p class="detail">Sunset: ${sunset}</p>
-      `;
-    })
-    .catch((error) => {
-      console.log(error);
-      weatherDiv.innerHTML = "<p>Something went wrong. Please try again later.</p>";
-    });
+search.addEventListener('click', () => {
+    // Add comments to explain the functionality of this code block
+
+    const APIKey = '8120e07ede826efd7a89377bb532cd71';
+    const city = document.querySelector('.search-box input').value;
+
+    if (city === '')
+        return;
+
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${APIKey}`)
+        .then(response => response.json())
+        .then(json => {
+
+            if (json.cod === '404') {
+                container.style.height = '400px';
+                weatherBox.style.display = 'none';
+                weatherDetails.style.display = 'none';
+                error404.style.display = 'block';
+                error404.classList.add('fadeIn');
+                return;
+            }
+
+            error404.style.display = 'none';
+            error404.classList.remove('fadeIn');
+
+            // Add comments to describe each element
+
+            const image = document.querySelector('.weather-box img');
+            const temperature = document.querySelector('.weather-box .temperature');
+            const description = document.querySelector('.weather-box .description');
+            const humidity = document.querySelector('.weather-details .humidity span');
+            const wind = document.querySelector('.weather-details .wind span');
+
+            switch (json.weather[0].main) {
+                case 'Clear':
+                    image.src = 'images/clear.png';
+                    break;
+
+                case 'Rain':
+                    image.src = 'images/rain.png';
+                    break;
+
+                case 'Snow':
+                    image.src = 'images/snow.png';
+                    break;
+
+                case 'Clouds':
+                    image.src = 'images/cloud.png';
+                    break;
+
+                case 'Haze':
+                    image.src = 'images/mist.png';
+                    break;
+                
+                case 'Mist':
+                    image.src = 'images/mist.png';
+                    break;
+
+                default:
+                    image.src = '';
+            }
+
+            // Add comments to explain the data assignment
+
+            temperature.innerHTML = `${parseInt(json.main.temp)}<span>°C</span>`;
+            description.innerHTML = `${json.weather[0].description}`;
+            humidity.innerHTML = `${json.main.humidity}%`;
+            wind.innerHTML = `${parseInt(json.wind.speed)}Km/h`;
+
+            // Add comments to describe the animation and height adjustment
+
+            weatherBox.style.display = '';
+            weatherDetails.style.display = '';
+            weatherBox.classList.add('fadeIn');
+            weatherDetails.classList.add('fadeIn');
+            container.style.height = '590px';
+        });
 });
+
+document.querySelector('.search-box input').addEventListener('keyup', event => {
+    if (event.keyCode === 13) {
+        search.click();
+    }
+});
+
+window.onload = function() {
+    loadAnimation();
+};
