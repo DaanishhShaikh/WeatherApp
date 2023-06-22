@@ -32,8 +32,8 @@ The Weather App is a simple web application that allows users to get weather inf
 5. The weather details will be displayed below the search box.
 
 ## Screenshots
-
-![Weather App Screenshot](images/Screenshot.png)
+<img src="images/Screenshot.png" alt="Weather App Screenshot" width="400">
+<img src="images/image.png" alt="Weather App Screenshot" width="400">
 
 ## License
 
